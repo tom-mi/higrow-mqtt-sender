@@ -1,6 +1,6 @@
 # higrow-mqtt-sender
 
-Firmware for the (HiGrow Plants Monitoring Sensor)`https://hackaday.io/project/25253-higrow-plants-monitoring-sensor`
+Firmware for the [HiGrow Plants Monitoring Sensor](https://hackaday.io/project/25253-higrow-plants-monitoring-sensor)
 that sends sensor readings to a MQTT broker
 
 ## Overview
