@@ -33,7 +33,7 @@ WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
 void print_info() {
-  Serial.println(F("--------------------------------------------------------------------------------"));
+  Serial.println(F("------------------------------------------------------------"));
   Serial.print(F("Device id:      "));
   Serial.println(device_id);
   Serial.print(F("Mqtt broker:    "));
@@ -44,11 +44,11 @@ void print_info() {
   Serial.println(topic);
   Serial.print(F("Mqtt client id: "));
   Serial.println(client_id);
-  Serial.println(F("--------------------------------------------------------------------------------"));
+  Serial.println(F("------------------------------------------------------------"));
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("");
   Serial.println(F("Hello :)\nHigrow MQTT sender\nhttps://github.com/tom-mi/higrow-mqtt-sender"));
 
@@ -104,6 +104,7 @@ void read_and_send_data() {
     if (mqtt_client.beginPublish(topic.c_str(), payload.length(), false)) {
       mqtt_client.print(payload);
       mqtt_client.endPublish();
+      mqtt_client.disconnect();
       Serial.println("Success sending message");
     } else {
         Serial.println("Error sending message");
@@ -113,8 +114,14 @@ void read_and_send_data() {
 
 void loop() {
   read_and_send_data();
-  Serial.println("Going to sleep");
+  Serial.println(F("Flushing wifi client"));
   wifi_client.flush();
+  Serial.println(F("Disconnecting wifi"));
+  WiFi.disconnect(true, false);
+  delay(500);  // Wait a bit to ensure message sending is complete
+  Serial.print(F("Going to sleep after "));
+  Serial.print(millis());
+  Serial.println(F("ms"));
   Serial.flush();
   ESP.deepSleep(DEEP_SLEEP_SECONDS * 1000000);
 }
