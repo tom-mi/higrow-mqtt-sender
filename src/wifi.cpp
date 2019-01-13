@@ -2,7 +2,7 @@
 #include <WiFiClient.h>
 #include "wifi.h"
 
-const int WIFI_CONNECT_TIMEOUT_SECONDS = 30;
+const int WIFI_CONNECT_TIMEOUT_SECONDS = 10;
 
 boolean connect_wifi() {
   Serial.print(F("Connecting to wifi "));
