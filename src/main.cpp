@@ -12,7 +12,6 @@
 const int DHT_PIN = 22;
 const int DHT_TYPE = DHT11;
 const int SOIL_PIN = 32;
-const int POWER_PIN = 34;
 const int LIGHT_PIN = 33;
 const int INFO_LED_PIN = 16;
 
@@ -24,7 +23,6 @@ const int DEEP_SLEEP_SECONDS = 600;
 int NO_WATER = 3323;
 int FULL_WATER = 1389;
 
-
 DHT_Unified dht(DHT_PIN, DHT_TYPE);
 
 String device_id;
@@ -34,16 +32,8 @@ String topic;
 WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
-void setup() {
-  pinMode(INFO_LED_PIN, OUTPUT);
-  pinMode(POWER_PIN, INPUT); // TODO needed?
-
-  device_id = get_device_id();
-  client_id = "higrow_" + device_id;
-  topic = TOPIC_PREFIX + device_id + TOPIC_SUFFIX;
-
-  Serial.begin(9600);
-  Serial.println(F("Hello :)\nHigrow MQTT sender\nhttps://github.com/tom-mi/higrow-mqtt-sender"));
+void print_info() {
+  Serial.println(F("--------------------------------------------------------------------------------"));
   Serial.print(F("Device id:      "));
   Serial.println(device_id);
   Serial.print(F("Mqtt broker:    "));
@@ -54,13 +44,27 @@ void setup() {
   Serial.println(topic);
   Serial.print(F("Mqtt client id: "));
   Serial.println(client_id);
+  Serial.println(F("--------------------------------------------------------------------------------"));
+}
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("");
+  Serial.println(F("Hello :)\nHigrow MQTT sender\nhttps://github.com/tom-mi/higrow-mqtt-sender"));
+
+  pinMode(INFO_LED_PIN, OUTPUT);
+
+  device_id = get_device_id();
+  client_id = "higrow_" + device_id;
+  topic = TOPIC_PREFIX + device_id + TOPIC_SUFFIX;
+
+  print_info();
 
   connect_wifi();
 
   mqtt_client.setServer(MQTT_BROKER_HOST, String(MQTT_BROKER_PORT).toInt());
 
   dht.begin();
-
 
   digitalWrite(INFO_LED_PIN, LOW);
 }
@@ -90,8 +94,8 @@ void read_and_send_data() {
   root["temperature_celsius"] = read_temperature();
   root["humidity_percent"] = read_relative_humidity();
   root["water"] = read_sensor(SOIL_PIN, NO_WATER, FULL_WATER);
-  root["light"] = read_sensor(LIGHT_PIN, 0, 4096);
-  Serial.print(F("Sending payload:"));
+  root["light"] = read_sensor(LIGHT_PIN, 0, 4095);
+  Serial.print(F("Sending payload: "));
   root.printTo(Serial);
   Serial.println("");
   if(reconnect_mqtt(mqtt_client, client_id.c_str())) {
