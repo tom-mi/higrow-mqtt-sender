@@ -101,7 +101,7 @@ void read_and_send_data() {
   if(reconnect_mqtt(mqtt_client, client_id.c_str())) {
     String payload;
     root.printTo(payload);
-    if (mqtt_client.beginPublish(topic.c_str(), payload.length(), false)) {
+    if (mqtt_client.beginPublish(topic.c_str(), payload.length(), true)) {
       mqtt_client.print(payload);
       mqtt_client.endPublish();
       mqtt_client.disconnect();
