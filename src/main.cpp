@@ -17,7 +17,7 @@ const int INFO_LED_PIN = 16;
 
 const String TOPIC_PREFIX = "higrow_plant_monitor/";
 const String TOPIC_SUFFIX = "/state";
-const int DEEP_SLEEP_SECONDS = 600;
+const int DEEP_SLEEP_SECONDS = 60 * 20;
 
 // The following values were calibrated using a glass of water
 int NO_WATER = 3323;
