@@ -19,9 +19,11 @@ const String TOPIC_PREFIX = "higrow_plant_monitor/";
 const String TOPIC_SUFFIX = "/state";
 const int DEEP_SLEEP_SECONDS = 60 * 20;
 
+const int WATER_MEASUREMENTS = 10;
+const int WATER_MEASURE_INTERVAL_MS = 200;
 // The following values were calibrated using a glass of water
-int NO_WATER = 3323;
-int FULL_WATER = 1389;
+const int NO_WATER = 3323;
+const int FULL_WATER = 1389;
 
 DHT_Unified dht(DHT_PIN, DHT_TYPE);
 
@@ -75,6 +77,15 @@ float read_sensor(int pin, int zero_value, int one_value) {
   return constrain(level, 0., 1.);
 }
 
+float read_water_smoothed() {
+  float value = 0.;
+  for (int i=0; i<WATER_MEASUREMENTS; i++) {
+    value += read_sensor(SOIL_PIN, NO_WATER, FULL_WATER);
+    delay(WATER_MEASURE_INTERVAL_MS);
+  }
+  return value / WATER_MEASUREMENTS;
+}
+
 float read_temperature() {
   sensors_event_t event;
   dht.temperature().getEvent(&event);
@@ -93,7 +104,7 @@ void read_and_send_data() {
   root["device_id"] = device_id;
   root["temperature_celsius"] = read_temperature();
   root["humidity_percent"] = read_relative_humidity();
-  root["water"] = read_sensor(SOIL_PIN, NO_WATER, FULL_WATER);
+  root["water"] = read_water_smoothed();
   root["light"] = read_sensor(LIGHT_PIN, 0, 4095);
   Serial.print(F("Sending payload: "));
   root.printTo(Serial);
