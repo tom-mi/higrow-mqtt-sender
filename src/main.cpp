@@ -99,19 +99,18 @@ float read_relative_humidity() {
 }
 
 void read_and_send_data() {
-  DynamicJsonBuffer buffer;
-  JsonObject& root = buffer.createObject();
+  DynamicJsonDocument root(1024);
   root["device_id"] = device_id;
   root["temperature_celsius"] = read_temperature();
   root["humidity_percent"] = read_relative_humidity();
   root["water"] = read_water_smoothed();
   root["light"] = read_sensor(LIGHT_PIN, 0, 4095);
   Serial.print(F("Sending payload: "));
-  root.printTo(Serial);
+  serializeJson(root, Serial);
   Serial.println("");
   if(reconnect_mqtt(mqtt_client, client_id.c_str())) {
     String payload;
-    root.printTo(payload);
+    serializeJson(root, payload);
     if (mqtt_client.beginPublish(topic.c_str(), payload.length(), true)) {
       mqtt_client.print(payload);
       mqtt_client.endPublish();
